@@ -21,20 +21,11 @@
         <item>com.amazon.amazonvideo.livingroom</item>
         <item>com.google.android.youtube.tv</item>
         <item>in.startv.hotstar</item>
-        <item>com.jio.media.stb.ondemand</item>
-        <item>com.graymatrix.did</item>
-        <item>com.suntv.sunnxt</item>
-        <item>com.viacom18.tv.voot</item>
     </string-array>
     <!-- With fewer dock_apps than columns (or a dock app that is not installed), the free dock slots take
          the first grid apps, so the dock never shows a gap. false leaves them empty (#162); a theme can
          set "fill_dock": false. -->
     <bool name="fill_dock">true</bool>
-
-    <!-- Number of slots in the dock row. 0 (default) makes the dock as wide as columns (the grid width).
-         Set higher than columns to show more apps in the dock than are in the grid's row width, e.g. 8
-         dock slots on a 4-column grid gives a wider, denser dock with smaller tiles. -->
-    <integer name="dock_columns">8</integer>
 
     <!-- Apps never shown as tiles (e.g. the Live TV app, which the Inputs menu already covers). -->
     <string-array name="hidden_apps">

@@ -110,8 +110,6 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
     static final String ACTION_VIEW_INPUTS = "com.android.tv.action.VIEW_INPUTS";
     /** Tiles per row and dock slots (res/values/config.xml, columns). Set in onCreate. */
     static int COLUMNS = 4;
-    /** Dock slot count (res/values/config.xml, dock_columns; 0 = same as COLUMNS). Set in onCreate. */
-    static int DOCK_COLUMNS = 4;
     private boolean rtlAppGrid;
     private static final long MINUTE_MS = 60_000L;
     private static final long STATS_MS = 10_000L;
@@ -474,7 +472,6 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         settingsKeycodes = cfg.settingsKeycodes;
         settingsKeyPanel = cfg.settingsKeyPanel;
         COLUMNS = cfg.columns;
-        DOCK_COLUMNS = cfg.dockColumns;
         animations = cfg.animations;
         advancedEffects = cfg.animations && cfg.advancedEffects;
         reducedMotion = cfg.reducedMotion;
@@ -650,7 +647,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
                     else parent.smoothScrollBy(dx, 0);
                     return true;
                 }
-                if (dockRow && getPosition(child) < DOCK_COLUMNS) return false;
+                if (dockRow && getPosition(child) < COLUMNS) return false;
                 int top = child.getTop() + rect.top;
                 int bottom = top + rect.height();
                 // A row already fully on screen stays put, even inside the bottom padding (the last row
@@ -684,7 +681,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
             public void onChildViewDetachedFromWindow(@NonNull View v) {
             }
         });
-        if (dockRow) grid.addItemDecoration(new DockDecoration(DOCK_COLUMNS, density, cinematic, cfg.alwaysShowNames, cfg.dockOpacity, cfg.dockGlass, cfg.dockEvenPadding, cfg.dockBand,
+        if (dockRow) grid.addItemDecoration(new DockDecoration(COLUMNS, density, cinematic, cfg.alwaysShowNames, cfg.dockOpacity, cfg.dockGlass, cfg.dockEvenPadding, cfg.dockBand,
                 singleRow, cfg.dockBandAll));
         if (cfg.fadeRows) TopFade.attach(grid, 48 * density);
         // Reduced motion: the tiles are simply there, with no entrance (reloadApps skips it there too).
@@ -692,7 +689,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
             grid.setLayoutAnimation(new LayoutAnimationController(
                     AnimationUtils.loadAnimation(this, R.anim.tile_enter), 0.06f));
         }
-        adapter = new AppAdapter(this, this, DOCK_COLUMNS, cfg);
+        adapter = new AppAdapter(this, this, COLUMNS, cfg);
         dockApps = cfg.dockApps;
         fillDockLeavesSlots = !cfg.fillDock;
         Order savedOrder = Order.load(Order.file(this));
@@ -1561,16 +1558,16 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
             if (!down) {
                 int n = adapter.movableCount();
                 if (dockEditAppKey != null) {
-                    if (pos < Math.min(DOCK_COLUMNS, n)) {
+                    if (pos < Math.min(COLUMNS, n)) {
                         int from = adapter.positionOf(dockEditAppKey);
                         if (from >= 0) swapIntoDock(pos, from);
                         else endReorder();
                     }
                 } else if (dockEditSlot < 0) {
-                    if (pos < Math.min(DOCK_COLUMNS, n)) {
+                    if (pos < Math.min(COLUMNS, n)) {
                         dockEditSlot = pos;
                         dimOthers();
-                        focusTile(Math.min(DOCK_COLUMNS, n - 1));
+                        focusTile(Math.min(COLUMNS, n - 1));
                         Toast.makeText(this, R.string.dock_edit_pick_app, Toast.LENGTH_LONG).show();
                     }
                 } else if (pos < n) {
@@ -1597,7 +1594,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         } else if (inDock) {
             dockEditSlot = pos;
             dimOthers();
-            focusTile(Math.min(DOCK_COLUMNS, n - 1));
+            focusTile(Math.min(COLUMNS, n - 1));
             Toast.makeText(this, R.string.dock_edit_pick_app, Toast.LENGTH_LONG).show();
         } else {
             dockEditAppKey = key;
@@ -1614,7 +1611,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
                 adapter.move(pos, slot);
                 adapter.move(adapter.positionOf(slotKey), pos);
             });
-            if (pos >= DOCK_COLUMNS) dockInSession.remove(slotKey);
+            if (pos >= COLUMNS) dockInSession.remove(slotKey);
         }
         // Outside the check: with no empty slots shown, the chosen app may already sit in the free place.
         dockInSession.add(adapter.keyAt(slot));
@@ -1647,7 +1644,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         if (movingKey != null) {
             return pos != RecyclerView.NO_POSITION && movingKey.equals(adapter.keyAt(pos)) ? 1f : 0.45f;
         }
-        if (dockEditSlot >= 0 && pos >= 0 && pos < DOCK_COLUMNS && pos != dockEditSlot) return 0.45f;
+        if (dockEditSlot >= 0 && pos >= 0 && pos < COLUMNS && pos != dockEditSlot) return 0.45f;
         return 1f;
     }
 
@@ -1669,8 +1666,8 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         // come back after the mode go after it (#499). With fill_dock true every dock slot holds an app anyway.
         int docked = -1;
         if (fillDockLeavesSlots) {
-            docked = DockSlots.dockCount(keys, DOCK_COLUMNS, dockInSession);
-            keys = DockSlots.dockFirst(keys, DOCK_COLUMNS, dockInSession);
+            docked = DockSlots.dockCount(keys, COLUMNS, dockInSession);
+            keys = DockSlots.dockFirst(keys, COLUMNS, dockInSession);
         }
         dockInSession = null;
         if (!keys.equals(before) || (fillDockLeavesSlots && docked != dockedAtStart)) {
@@ -1707,7 +1704,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         if (to < 0 || to >= n || to == from) return;
         keepScroll(() -> adapter.move(from, to));
         // The owner carries this tile: where it lands decides whether it is in the dock, not dock_apps (#499).
-        if (to < DOCK_COLUMNS) dockInSession.add(movingKey);
+        if (to < COLUMNS) dockInSession.add(movingKey);
         else dockInSession.remove(movingKey);
         refocusAfterLayout(to);
     }
@@ -1833,7 +1830,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         glassTargetY = y;
         // Cinematic shelf: the highlight glows in the dock app's colour, plain white in the grid (and on the dock with
         // cinematic_white_focus). app_glow: every tile. In a single row every tile is the dock's kind.
-        boolean coloured = (appGlow || cinematic && !cinematicWhiteFocus && (singleRow || position < DOCK_COLUMNS)) && !festive;
+        boolean coloured = (appGlow || cinematic && !cinematicWhiteFocus && (singleRow || position < COLUMNS)) && !festive;
         int accent = coloured ? adapter.ambientColorAt(position) : 0;
         if ((cinematic || appGlow) && !festive && accent != glassAccent) {
             glassAccent = accent;
@@ -1857,7 +1854,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
             springY.animateToFinalPosition(y - glassScrollShift);
         }
         View item = (View) card.getParent();
-        if (dockRow && (singleRow || position < DOCK_COLUMNS)) {
+        if (dockRow && (singleRow || position < COLUMNS)) {
             // Dock: park it at the bottom of the screen and show the top shelf for this app. In a single row
             // every tile is in the dock's row, which never scrolls vertically.
             int decoratedTop = item.getTop() - (int) (6 * density);
@@ -2447,29 +2444,20 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
                 return true;
             }
             // In the dock, the last app is the row's end: the empty slots after it take no focus.
-            int rowCount = position < DOCK_COLUMNS ? Math.min(count, adapter.dockFilled()) : count;
-            int rowWidth = position < DOCK_COLUMNS ? DOCK_COLUMNS : COLUMNS;
-            return GridNavigation.atHorizontalEdge(position, rowCount, rowWidth,
+            int rowCount = position < COLUMNS ? Math.min(count, adapter.dockFilled()) : count;
+            return GridNavigation.atHorizontalEdge(position, rowCount, COLUMNS,
                     rtlAppGrid, keyCode == KeyEvent.KEYCODE_DPAD_LEFT);
         }
         if (keyCode == KeyEvent.KEYCODE_DPAD_UP) {
-            if (position < DOCK_COLUMNS) return false;          // dock row: let focus move to the top bar
-            // First grid row: land in the dock at the column-aligned slot (position - DOCK_COLUMNS).
-            // Subsequent grid rows: step up by COLUMNS as usual.
-            int step = position < DOCK_COLUMNS + COLUMNS ? DOCK_COLUMNS : COLUMNS;
-            target = position - step;
+            if (position < COLUMNS) return false;          // dock row: let focus move to the top bar
+            target = position - COLUMNS;
         } else {
             int lastRowStart = ((count - 1) / COLUMNS) * COLUMNS;
             if (position >= lastRowStart) {
                 if (adapter.isLibraryAt(count)) focusLibrary();
                 return true;
             }
-            // From the dock row, land in the first grid row at the column-aligned position (position % COLUMNS);
-            // within the grid, step by COLUMNS as usual.
-            int target2 = position < DOCK_COLUMNS
-                    ? Math.min(DOCK_COLUMNS + (position % COLUMNS), count - 1)
-                    : position + COLUMNS;
-            target = Math.min(target2, count - 1);
+            target = Math.min(position + COLUMNS, count - 1);
         }
         focusTile(target);
         // The default focus search clicks for Left/Right; Up/Down are handled here, so click for them too.
@@ -3835,7 +3823,7 @@ public class MainActivity extends Activity implements AppAdapter.TileListener {
         LinearLayout rows = panel.findViewById(R.id.rows);
         PopupWindow popup = glassPopup(panel, (int) (200 * density));
         if (dockRow && position < adapter.movableCount()) {
-            boolean inDock = position < DOCK_COLUMNS;
+            boolean inDock = position < COLUMNS;
             addSettingsMenuRow(rows, popup, inDock ? R.string.tile_replace_in_dock : R.string.tile_add_to_dock,
                     () -> startDockEditFor(key, inDock));
         }

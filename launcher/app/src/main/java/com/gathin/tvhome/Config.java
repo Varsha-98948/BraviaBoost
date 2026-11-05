@@ -86,8 +86,6 @@ final class Config {
     /** Scheme an Inputs row's passthrough URI is sent with instead of content:// (config.xml or theme input_uri_scheme). */
     final String inputUriScheme;
     final int columns;
-    /** Number of slots in the dock row (config.xml, dock_columns); 0 means same as {@link #columns}. */
-    final int dockColumns;
     final boolean animations;
     final boolean advancedEffects;
     final int rowsBelowDock;
@@ -284,7 +282,7 @@ final class Config {
                    String liveTvAction, String liveTvInputId, Map<String, String> launchActions, Map<String, String> appLabels,
                    Map<String, String> appBanners, String sourcePanelService, String sourcePanelAction,
                    String sourcePanelExtra, boolean coocaaSources, String inputAction, List<String> inputSources,
-                   String inputUriScheme, int columns, int dockColumns, int rowsBelowDock, boolean animations, boolean advancedEffects,
+                   String inputUriScheme, int columns, int rowsBelowDock, boolean animations, boolean advancedEffects,
                    boolean shamsiDate, String greetingName, boolean moduleCards, boolean reducedMotion, boolean bootToLiveTv, boolean openOnStartChoice, boolean dockTitle, boolean dockRow, boolean topMenu, boolean launcherSettingsButton, boolean reorderButton, boolean showNetworkPill, boolean showInputsPill, boolean iconOnlyButtons, boolean iconOnlyInputs, boolean libraryButton, boolean showLibraryPill, int wifiLabelWidth, boolean alwaysShowNames, boolean wallpaperTrueColor, boolean focusOvershoot, String vpnApp,
                    boolean showHomeSettingsShortcut, boolean showStats, String gameDay, boolean appLibrary, boolean appLibrarySelection, boolean libraryOkOpens, boolean uniformTiles, int backgroundColor, int skyIntensity,
                    int[] settingsKeycodes, boolean settingsKeyPanel, boolean restoreKeyServices, boolean wallpaperEnabled, File wallpaper, List<File> wallpapers,
@@ -320,7 +318,6 @@ final class Config {
         this.inputSources = Collections.unmodifiableList(inputSources);
         this.inputUriScheme = inputUriScheme;
         this.columns = columns;
-        this.dockColumns = dockColumns;
         this.rowsBelowDock = rowsBelowDock;
         this.animations = animations;
         this.advancedEffects = advancedEffects;
@@ -453,7 +450,6 @@ final class Config {
         List<String> inputSources = new ArrayList<>(Arrays.asList(res.getStringArray(R.array.input_sources)));
         String inputUriScheme = res.getString(R.string.input_uri_scheme).trim();
         int columns = res.getInteger(R.integer.columns);
-        int dockColumns = res.getInteger(R.integer.dock_columns);
         int rowsBelow = res.getInteger(R.integer.rows_below_dock);
         boolean animations = res.getBoolean(R.bool.animations);
         boolean advancedEffects = res.getBoolean(R.bool.advanced_effects);
@@ -568,7 +564,6 @@ final class Config {
             inputSources = stringList(json, "input_sources", inputSources);
             inputUriScheme = string(json, "input_uri_scheme", inputUriScheme).trim();
             columns = integer(json, "columns", columns, 1, 8);
-            dockColumns = integer(json, "dock_columns", dockColumns, 0, 16);
             rowsBelow = integer(json, "rows_below_dock", rowsBelow, 0, 3);
             animations = bool(json, "animations", animations);
             advancedEffects = bool(json, "advanced_effects", advancedEffects);
@@ -708,7 +703,6 @@ final class Config {
 
         return new Config(dock, fillDock, hidden, libraryApps, libraryExcludedApps, liveTv, liveTvAction, liveTvInputId, packageMap(launchActions), packageMap(appLabels),
                 packageMap(appBanners), panelService, panelAction, panelExtra, coocaaSources, inputAction, inputSources, inputUriScheme, Math.max(1, columns),
-                dockColumns < 1 ? Math.max(1, columns) : dockColumns,
                 Math.max(0, rowsBelow), animations, advancedEffects, shamsi, greetingName, moduleCards, reducedMotion, bootToLiveTv,
                 openOnStartChoice, dockTitle, dockRow, topMenu, launcherSettingsButton, reorderButton, showNetworkPill, showInputsPill,
                 iconOnlyButtons, iconOnlyInputs, libraryButton, showLibraryPill, wifiLabelWidth, alwaysShowNames, wallpaperTrueColor, focusOvershoot,
